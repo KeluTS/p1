@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<seeds>
+  <lottery>
+    <name>Euro Millions</name>
+    <baseUrl>http://www.euro-millions.com</baseUrl>
+    <archieveLink>/past-results</archieveLink>
+    <dateFmt>dd-MM-yyyy</dateFmt>
+		<ballSet>
+			<name>balls</name>
+			<count>50</count>
+			<elected>5</elected>
+		</ballSet>
+		<ballSet>
+			<name>lucky stars</name>
+			<count>11</count>
+			<elected>2</elected>
+		</ballSet>
+    <winCategories>12</winCategories>
+    <strategy name="S1">
+      <interval type="set1" val="3" relation="&lt;" />
+      <interval type="set1" val="6" relation="&lt;" />
+      <interval type="set1" val="9" relation="&gt;" />
+      <interval type="set2" val="3" relation="&lt;" />
+      <interval type="set2" val="6" relation="&lt;" />
+      <interval type="set2" val="9" relation="&gt;" />
+    </strategy>
+    <saveFile>euro.lty</saveFile>
+  </lottery>
+</seeds>
