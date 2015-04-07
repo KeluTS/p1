@@ -1,3 +1,6 @@
+require 'nokogiri'
+require 'open-uri'
+
 class BallSet
 	attr_accessor :name
 	attr_accessor :count
@@ -39,6 +42,25 @@ class Game
 		@name = nil
 	end
 
+	def getArchieveYearsList
+		archivesLink = nil
+		archivesLink = "#{@properties['baseUrl']}#{@properties['archieveLink']}" if @properties.has_key?("baseUrl") && @properties.has_key?("archieveLink")
+
+		self.error("Archieve link not set for '#{@name}'") if archivesLink.nil?
+
+		file = self.getHTTPFile(archivesLink)
+
+		htmldoc = Nokogiri::HTML(file) do |config|
+			config.noblanks
+		end
+
+		htmldoc.css('ul.year li').each do |li|
+			year = li.children.text
+			link = li.children.attr('href').value if !li.children.attr('href').nil?
+			puts "#{year}:  #{link}"
+		end
+	end
+
   def to_s
   	string = "#{self.name}: \n"
   	@properties.each do |property, value|
@@ -49,4 +71,24 @@ class Game
   	end
   	string
   end
+
+  def error(message)
+  	puts message
+  	exit
+  end
+
+  def getHTTPFile(url)
+		begin
+			file = open(url)
+		rescue OpenURI::HTTPError => e
+  		if e.message == '404 Not Found'
+    		# handle 404 error
+    		self.error("Archieve link '#{url}' not found for '#{@name}'")
+  		else
+    		raise e
+  		end
+		end
+		file
+  end
+
 end

@@ -5,4 +5,7 @@ require_relative 'Classes/GamesManager'
 manager = GamesManager.new
 manager.loadGamesFromXml
 manager.print
+
+game = manager.games.first
+game.getArchieveYearsList
 manager = nil
