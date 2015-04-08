@@ -36,28 +36,48 @@ class Game
   attr_reader :modified
   attr_reader :lastDrawID
 
+	#private instance variables
+	attr_reader :archiveLinks
+
 	def initialize
 		@properties = {}
 		@ballSets = []
 		@name = nil
+		@archiveLinks = {}
+	end
+
+	def init
+		self.getArchieveYearsList
+
+		@archiveLinks.each do |year, url|
+			puts "Processing #{year} (#{url})"
+			htmldoc = self.getHTMLDoc(url)
+			processArchiveDoc htmldoc
+		end
 	end
 
 	def getArchieveYearsList
-		archivesLink = nil
-		archivesLink = "#{@properties['baseUrl']}#{@properties['archieveLink']}" if @properties.has_key?("baseUrl") && @properties.has_key?("archieveLink")
+
+		archivesLink = self.makeLink(@properties['baseUrl'], @properties['archieveLink'])
 
 		self.error("Archieve link not set for '#{@name}'") if archivesLink.nil?
 
-		file = self.getHTTPFile(archivesLink)
-
-		htmldoc = Nokogiri::HTML(file) do |config|
-			config.noblanks
-		end
+		htmldoc = self.getHTMLDoc(archivesLink)
 
 		htmldoc.css('ul.year li').each do |li|
 			year = li.children.text
 			link = li.children.attr('href').value if !li.children.attr('href').nil?
-			puts "#{year}:  #{link}"
+			@archiveLinks[year] = self.makeLink(@properties['baseUrl'], link)
+		end
+	end
+
+	def processArchiveDoc (htmldoc)
+		htmldoc.css('div.archives').each do |game|
+			datedoc = game.children.css("a")
+			date_link = datedoc.attr('href').value if (!datedoc.nil? && !datedoc.attr('href').nil?)
+			date_string = date_link.reverse.split('/', 2).collect(&:reverse).first if !date_link.nil?
+			date = Date.strptime(date_string, '%d-%m-%Y')
+			puts date.to_s
 		end
 	end
 
@@ -91,4 +111,17 @@ class Game
 		file
   end
 
+	def getHTMLDoc(url)
+		file = self.getHTTPFile(url)
+
+		htmldoc = Nokogiri::HTML(file) do |config|
+			config.noblanks
+		end
+		htmldoc
+	end
+
+	def makeLink(baseUrl, link)
+		return "#{baseUrl}#{link}" if !baseUrl.nil? && !link.nil?
+		nil
+	end
 end

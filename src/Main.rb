@@ -7,5 +7,5 @@ manager.loadGamesFromXml
 manager.print
 
 game = manager.games.first
-game.getArchieveYearsList
+game.init
 manager = nil
